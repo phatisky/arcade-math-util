@@ -1,5 +1,12 @@
 namespace Math {
 
+    export enum angleofdegrad {
+        //%block="from degree to radian"
+        deg2rad = -1,
+        //%block="from radian to degree"
+        rad2deg = 1,
+    }
+
     export enum operation {
         //%block="+"
         add = 0,
@@ -152,26 +159,19 @@ namespace Math {
     }
 
     /**
-     * Get number degree convert to number radian
-     * @param degree value to convert
+     * Get number degree convert to number radian or convert number radian to number degree
+     * @param number value to convert between degree and radian
+     * @param convert degree to radian (-1) or convert radian to degree (1)
      */
-    //%blockid=math_degtorad
-    //%block="convert degree $deg to radian"
+    //%blockid=math_convertbetweendegreeandradian
+    //%block="convert $val $degrad"
     //%group="math util"
     //%weight=50
-    export function deg2rad(deg: number) {
-        return deg * (PI / 180)
-    }
-
-    /**
-     * Get number radian convert to number degree
-     * @param radian value to convert
-     */
-    //%blockid=math_radtodeg
-    //%block="convert radian $rad to degree"
-    //%group="math util"
-    //%weight=49
-    export function rad2deg(rad: number) {
-        return rad / (PI * 180)
+    export function degrad(val: number,degrad: angleofdegrad) {
+        switch (degrad) {
+            case -1: return val * (PI / 180); break;
+            case 1: return val / (PI * 180); break;
+        }
+        return val
     }
 }
