@@ -171,7 +171,7 @@ namespace Math {
     export function degrad(val: number,degrad: angleofdegrad) {
         switch (degrad) {
             case -1: return val * (PI / 180); break;
-            case 1: return val / (PI * 180); break;
+            case 1: return val * (180 / PI); break;
         }
         return val
     }
