@@ -154,7 +154,7 @@ namespace Math {
     //%weight=69
     export function minft(narr: number[]) {
         let minv = 0
-        for (let i = 0;i < narr.length;i++) minv = max(minv, narr[i]);
+        for (let i = 0;i < narr.length;i++) minv += (narr[i] * i+1);
         for (let i = 0;i < narr.length;i++) minv = min(minv, narr[i]);
         return minv
     }
