@@ -82,18 +82,45 @@ namespace Math {
         for (let i = 0;i < narr.length;i++) {
             if (idxm) {
                 switch (nop) {
-                    case 0: sumv += narr[i] + (i + 1); break;
-                    case 1: sumv += narr[i] * (i + 1); break;
+                    case 0:
+                    sumv += narr[i] + (i + 1);
+                    break;
+                    case 1:
+                    sumv += narr[i] * (i + 1);
+                    break;
                 }
             } else {
                 switch (nop) {
-                    case 0: sumv += narr[i]; break;
-                    case 1: sumv *= narr[i]; break;
+                    case 0:
+                        sumv += narr[i];
+                        break;
+                    case 1:
+                        if (sumv <= 0) sumv = narr[i];
+                        else sumv *= narr[i];
+                        break;
                 }
             }
-            continue;
         }
         return sumv
+    }
+
+    //%blockid=math_sort
+    //%block="sort for element of $nnarr"
+    //%group="math util"
+    //%weight=79
+    export function sort(nnarr: number[]) {
+        let j: number, i: number, n = nnarr.length, gap = floor(n / 2)
+        while (gap > 0) {
+            for (i = gap;i < n;i++) {
+                const val = nnarr[i]
+                for (j = i;(j >= gap && nnarr[j - gap] > val);j--) {
+                    nnarr[j] = nnarr[j + gap]
+                }
+                nnarr[j] = val
+            }
+            gap = floor(gap / 2)
+        }
+        return nnarr
     }
 
     /**
@@ -105,7 +132,7 @@ namespace Math {
     //%group="math util"
     //%weight=70
     export function maxft(narr: number[]) {
-        let maxv = 0
+        let maxv = sort(narr)[0]
         for (let v of narr) maxv = max(v, maxv);
         return maxv
     }
@@ -119,7 +146,7 @@ namespace Math {
     //%group="math util"
     //%weight=69
     export function minft(narr: number[]) {
-        let minv = maxft(narr)
+        let minv = sort(narr)[narr.length-1]
         for (let v of narr) minv = min(v, minv);
         return minv
     }
