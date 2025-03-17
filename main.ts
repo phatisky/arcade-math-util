@@ -53,7 +53,7 @@ namespace Math {
      * @param number changing value
      */
     //%blockid=math_mathbit
-    //%block="$numv $mbit $numb"
+    //%block="$numa $mbit $numb"
     //%group="math util"
     //%weight=99
     export function bitmath(numa: number, mbit: movebit, numb: number) {
@@ -120,6 +120,7 @@ namespace Math {
     export function minft(narr: number[]) {
         let minv = maxft(narr)
         for (let v of narr) minv = min(v, minv);
+        return minv
     }
 
     /**
