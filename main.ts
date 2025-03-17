@@ -139,9 +139,7 @@ namespace Math {
     //%group="math util"
     //%weight=70
     export function maxft(narr: number[]) {
-        let maxv = sort(narr)[0]
-        for (let v of narr) maxv = max(v, maxv);
-        return maxv
+        return sort(narr)[narr.length-1]
     }
 
     /**
@@ -153,9 +151,7 @@ namespace Math {
     //%group="math util"
     //%weight=69
     export function minft(narr: number[]) {
-        let minv = sort(narr)[narr.length-1]
-        for (let v of narr) minv = min(v, minv);
-        return minv
+        return sort(narr)[0]
     }
 
     /**
