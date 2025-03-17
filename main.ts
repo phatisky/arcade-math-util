@@ -38,6 +38,7 @@ namespace Math {
     //%group="math util"
     //%weight=100
     export function mod(numv: number, modv: number) {
+        if (modv == 0) return modv;
         modv = abs(modv)
         while (numv >= modv || numv < 0) {
             if (numv >= modv) numv -= modv;
