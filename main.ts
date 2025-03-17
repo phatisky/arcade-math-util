@@ -1,6 +1,6 @@
 namespace Math {
 
-    export enum opaetion {
+    export enum operation {
         //%block="+"
         add = 0,
         //%block="-"
@@ -8,7 +8,7 @@ namespace Math {
         //%block="×"
         mul = 2,
         //%block="÷"
-        dvi = 3,
+        div = 3,
     }
 
     export enum movebit {
