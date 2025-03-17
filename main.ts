@@ -38,12 +38,12 @@ namespace Math {
     //%group="math util"
     //%weight=100
     export function mod(numv: number, modv: number) {
-        let uvn = numv
-        while (uvn >= modv || uvn < 0) {
-            if (uvn >= modv) uvn -= modv;
-            else if (uvn < 0) uvn += modv;
+        modv = abs(modv)
+        while (numv >= modv || numv < 0) {
+            if (numv >= modv) numv -= modv;
+            else if (numv < 0) numv += modv;
         }
-        return uvn
+        return numv
     }
 
     /**
