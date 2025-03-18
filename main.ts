@@ -86,7 +86,7 @@ namespace Math {
     //%weight=80
     export function sumft(narr: number[], nop: sumtype, idxm: boolean = false) {
         let sumv = 0
-        for (let i = 0;i < narr.length;i++) {
+        for (let i = 0; i < narr.length; i++) {
             if (idxm) {
                 switch (nop) {
                     case 0:
@@ -118,10 +118,11 @@ namespace Math {
     export function sort(nnarr: number[]) {
         let j: number, i: number, n = nnarr.length, gap = floor(n / 2)
         while (gap > 0) {
-            for (i = gap;i < n;i++) {
+            for (i = gap; i < n; i++) {
                 const val = nnarr[i]
-                for (j = i;(j >= gap && nnarr[j - gap] > val);j--) {
-                    nnarr[j] = nnarr[j + gap]
+                for (j = i; (j >= 0 && nnarr[j - gap] > val); j -= gap) {
+                    const duoval = [nnarr[j], nnarr[j - gap]]
+                    nnarr[j] = duoval[1], nnarr[j - gap] = duoval[0]
                 }
                 nnarr[j] = val
             }
@@ -140,7 +141,7 @@ namespace Math {
     //%weight=70
     export function maxft(narr: number[]) {
         let maxv = 0
-        for (let i = 0;i < narr.length;i++) maxv = max(maxv, narr[i]);
+        for (let i = 0; i < narr.length; i++) maxv = max(maxv, narr[i]);
         return maxv
     }
 
@@ -154,8 +155,8 @@ namespace Math {
     //%weight=69
     export function minft(narr: number[]) {
         let minv = 0
-        for (let i = 0;i < narr.length;i++) minv += (narr[i] * i+1);
-        for (let i = 0;i < narr.length;i++) minv = min(minv, narr[i]);
+        for (let i = 0; i < narr.length; i++) minv += (narr[i] * i+1);
+        for (let i = 0; i < narr.length; i++) minv = min(minv, narr[i]);
         return minv
     }
 
