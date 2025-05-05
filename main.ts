@@ -1,21 +1,10 @@
 namespace Math {
 
     export enum angleofdegrad {
-        //%block="from degree to radian"
+        //%block="radian"
         deg2rad = -1,
-        //%block="from radian to degree"
+        //%block="degree"
         rad2deg = 1,
-    }
-
-    export enum operation {
-        //%block="+"
-        add = 0,
-        //%block="-"
-        sub = 1,
-        //%block="×"
-        mul = 2,
-        //%block="÷"
-        div = 3,
     }
 
     export enum movebit {
@@ -28,10 +17,10 @@ namespace Math {
     }
 
     export enum sumtype {
-        //%block="+"
-        add = 0,
-        //%block="×"
-        mul = 1,
+        //%block="basic sum"
+        basicsum = 0,
+        //%block="index sum"
+        indexsum = 1,
     }
 
     /**
@@ -45,7 +34,7 @@ namespace Math {
     //%group="math util"
     //%weight=100
     export function mod(numv: number, modv: number) {
-        if (modv == 0) return modv;
+        if (modv <= 0) return 0;
         modv = abs(modv)
         while (numv >= modv || numv < 0) {
             if (numv >= modv) numv -= modv;
@@ -66,46 +55,32 @@ namespace Math {
     //%weight=99
     export function bitmath(numa: number, mbit: movebit, numb: number) {
         switch (mbit) {
-            case 0: return numa ^ numb; break;
+            case 0: default: return numa ^ numb; break;
             case -1: return numa << numb; break;
             case 1: return numa >> numb; break;
         }
-        return numa
     }
 
     /**
      * get sum with array number values
      * @param array number to sum
      * @param sum type of added of mutipy
-     * @param sum in index mode if true
+     * @returns after sum is done
      */
     //%blockid=math_sumarr
-    //%block="sum element with $narr in $nop|| and index mode? $idxm"
-    //%idxm.shadow=toggleYesNo
+    //%block="basic sum on element of $narr|| in $sumt"
     //%group="math util"
     //%weight=80
-    export function sumft(narr: number[], nop: sumtype, idxm: boolean = false) {
+    export function basicsum(narr: number[], sumt: sumtype = 0) {
         let sumv = 0
         for (let i = 0; i < narr.length; i++) {
-            if (idxm) {
-                switch (nop) {
-                    case 0:
-                    sumv += narr[i] + (i + 1);
-                    break;
-                    case 1:
-                    sumv += narr[i] * (i + 1);
-                    break;
-                }
-            } else {
-                switch (nop) {
-                    case 0:
-                        sumv += narr[i];
-                        break;
-                    case 1:
-                        if (sumv <= 0) sumv = narr[i];
-                        else sumv *= narr[i];
-                        break;
-                }
+            switch (sumt) {
+                case 0: default:
+                    sumv += narr[i]
+                break;
+                case 1:
+                    sumv += narr[i] * (i+1)
+                break;
             }
         }
         return sumv
@@ -140,12 +115,10 @@ namespace Math {
     //%group="math util"
     //%weight=70
     export function maxft(narr: number[]) {
-        if (narr.length === 0) return undefined
-
-        let maximum = narr[0]
-        for (let i = 1; i < narr.length; i++) if (narr[i] > maximum) maximum = narr[i]
-
-        return maximum
+        if (narr.length <= 0) return -1
+        let nv: number
+        for (const vl of narr) nv = max(nv,vl)
+        return nv
     }
 
     /**
@@ -157,28 +130,35 @@ namespace Math {
     //%group="math util"
     //%weight=69
     export function minft(narr: number[]) {
-        if (narr.length === 0) return undefined
-
-        let minimum = narr[0]
-        for (let i = 1; i < narr.length; i++) if (narr[i] < minimum) minimum = narr[i]
-
-        return minimum
+        if (narr.length <= 0) return -1
+        let nv: number
+        for (const vl of narr) nv = min(nv,vl)
+        return nv
     }
 
     /**
-     * Get number degree convert to number radian or convert number radian to number degree
-     * @param number value to convert between degree and radian
-     * @param convert degree to radian (-1) or convert radian to degree (1)
+     * get convert number value from degree to radian
+     * @param degree number
+     * @returns radian number
      */
-    //%blockid=math_convertbetweendegreeandradian
-    //%block="convert $val $degrad"
+    //%blockid=math_deg2rad
+    //%block="convert degree $nv to radian"
     //%group="math util"
-    //%weight=50
-    export function degrad(val: number,degrad: angleofdegrad) {
-        switch (degrad) {
-            case -1: return val * (PI / 180); break;
-            case 1: return val * (180 / PI); break;
-        }
-        return val
+    //%weight=49
+    export function deg2rad(nv: number) {
+        return nv * (PI / 180)
+    }
+
+    /**
+     * get convert number value from radian to degree
+     * @param radian number
+     * @returns degree number
+     */
+    //%blockid=math_rad2deg
+    //%block="convert radian $nv to degree"
+    //%group="math util"
+    //%weight=48
+    export function rad2deg(nv: number) {
+        return nv * (180 / PI)
     }
 }
