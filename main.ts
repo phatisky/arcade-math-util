@@ -115,7 +115,7 @@ namespace Math {
     //%weight=70
     export function maxft(narr: number[]) {
         if (narr.length <= 0) return -1
-        let nv: number
+        let nv = narr[0]
         for (const vl of narr) nv = max(nv,vl)
         return nv
     }
@@ -131,7 +131,7 @@ namespace Math {
     //%weight=69
     export function minft(narr: number[]) {
         if (narr.length <= 0) return -1
-        let nv: number
+        let nv = narr[0]
         for (const vl of narr) nv = min(nv,vl)
         return nv
     }
