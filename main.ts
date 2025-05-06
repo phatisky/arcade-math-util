@@ -30,8 +30,8 @@ namespace Math {
     //%weight=100
     export function mod(numv: number, modv: number) {
         modv = abs(modv)
-        let modE = floor(modv / E)
         if (modv <= 0) return 0;
+        let modE = floor(max(E, floor(modv / E)))
         while (numv >= modv || numv < 0) {
             if (numv >= modv) numv -= (numv - modv**modE > modv)?modv**modE:modv;
             else if (numv < 0) numv += (numv + modv**modE < 0)?modv**modE:modv;
@@ -73,7 +73,7 @@ namespace Math {
         for (let i = 0; i < narr.length; i++) {
             switch (sumt) {
                 case 0: default: sumv += narr[i]; break;
-                case 1: sumv += narr[i] * ((offset > 0)?max(i,offset):i+1); break;
+                case 1: sumv += narr[i] * ((offset > 0)?(i <= offset)?offset:abs(i-offset):i+1); break;
             }
         }
         return sumv
@@ -114,7 +114,7 @@ namespace Math {
     //%group="math util"
     //%weight=70
     export function maxft(narr: number[]) {
-        if (narr.length <= 0) return -1
+        if (narr.length <= 0) return 0
         let nv = narr[0]
         for (const vl of narr) nv = max(nv,vl)
         return nv
@@ -130,7 +130,7 @@ namespace Math {
     //%group="math util"
     //%weight=69
     export function minft(narr: number[]) {
-        if (narr.length <= 0) return -1
+        if (narr.length <= 0) return 0
         let nv = narr[0]
         for (const vl of narr) nv = min(nv,vl)
         return nv
