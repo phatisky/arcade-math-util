@@ -30,13 +30,8 @@ namespace Math {
     //%weight=10
     export function mod(numv: number, modv: number) {
         modv = abs(modv)
-        if (modv <= 0) return 0;
-        let modE = floor(max(E, floor(modv / E)))
-        while (numv >= modv || numv < 0) {
-            if (numv >= modv) numv -= (numv - modv**modE > modv)?modv**modE:modv;
-            else if (numv < 0) numv += (numv + modv**modE < 0)?modv**modE:modv;
-        }
-        return numv
+        if (modv <= 0) return 0
+        return ((numv % modv) + modv) % modv
     }
 
     /**
@@ -114,7 +109,7 @@ namespace Math {
     //%block="max element of $narr"
     //%group="min and max"
     //%weight=10
-    export function maxft(narr: number[]) {
+    export function maxArr(narr: number[]) {
         if (narr.length <= 0) return 0
         let nv = narr[0]
         for (const vl of narr) nv = max(nv,vl)
@@ -130,7 +125,7 @@ namespace Math {
     //%block="min element of $narr"
     //%group="min and max"
     //%weight=5
-    export function minft(narr: number[]) {
+    export function minArr(narr: number[]) {
         if (narr.length <= 0) return 0
         let nv = narr[0]
         for (const vl of narr) nv = min(nv,vl)
