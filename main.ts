@@ -1,7 +1,7 @@
 
 namespace Math {
 
-    export enum movebit {
+    export enum bitmath {
         //%block="^"
         xor = 0,
         //%block="<<"
@@ -44,7 +44,7 @@ namespace Math {
     //%block="$numa $mbit $numb"
     //%group="math bit"
     //%weight=10
-    export function bitMath(numa: number, mbit: movebit, numb: number) {
+    export function bitOperate(numa: number, mbit: bitmath, numb: number) {
         switch (mbit) {
             case 0: default: return numa ^ numb; break;
             case -1: return numa << numb; break;
@@ -56,7 +56,7 @@ namespace Math {
      * get sum with array number values
      * @param array number to sum
      * @param sum type of added of mutipy
-     * @param offset number in sum
+     * @param offset number in sum starter
      * @returns after sum is done
      */
     //%blockid=math_sum_basic
@@ -182,6 +182,8 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function logn(n: number, x: number) {
+        n = abs(n)
+        if (n <= 1) return log(x)
         return (log(x) / log(n))
     }
 
