@@ -66,6 +66,7 @@ namespace Math {
      */
     //%blockid=math_sum_basic
     //%block="basic sum on element of $narr in $sumt|| and start at $offset"
+    //%offset.defl=1
     //%group="sum"
     //%weight=10
     export function sumBasic(narr: number[], sumt: sumtype, offset: number = 0) { offset = abs(offset)
@@ -185,7 +186,7 @@ namespace Math {
     //%block="log base $n of $x"
     //%group="exponential"
     //%weight=10
-    export function lnv(n: number, x: number) {
+    export function logn(n: number, x: number) {
         return (log(x) / log(n))
     }
 
