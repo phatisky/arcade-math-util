@@ -69,7 +69,7 @@ namespace Math {
         for (let i = 0; i < narr.length; i++) {
             switch (sumt) {
                 case 0: default: sumv += narr[i]; break;
-                case 1: sumv += narr[i] * ((offset > 0)?(i <= offset)?offset:abs(i-offset):i+1); break;
+                case 1: sumv += narr[i] * ((offset > 0)?((i <= offset)?offset:abs(i-offset)):i+1); break;
             }
         }
         return sumv
