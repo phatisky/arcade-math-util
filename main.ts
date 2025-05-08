@@ -219,7 +219,7 @@ namespace Math {
      * @returns The result of e raised to the power of x.
      */
     //%blockid=math_expv
-    //%block="e power of $x"
+    //%block="e^$x"
     //%group="exponential"
     //%weight=5
     export function expv(x: number) {
