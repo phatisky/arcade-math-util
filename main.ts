@@ -5,9 +5,13 @@ namespace Math {
         //%block="^"
         xor = 0,
         //%block="<<"
-        left = -1,
+        left = -2,
         //%block=">>"
-        right = 1,
+        right = 2,
+        //%block="&"
+        and = 1,
+        //%block="|"
+        or = -1
     }
 
     export enum sumtype {
@@ -37,7 +41,7 @@ namespace Math {
     /**
      * bit oparetion to calculate in xor shiftleft or shiftright
      * @param current number value
-     * @param bitmath oparetion 0=xor, -1=shiftleft, 1=shiftright
+     * @param bitmath oparetion 0=xor, -2=shiftleft, 2=shiftright, -1=bitor, 1=bitand
      * @param number changing value
      */
     //%blockid=math_bit_calc
@@ -47,8 +51,10 @@ namespace Math {
     export function bitOperate(numa: number, mbit: bitop, numb: number) {
         switch (mbit) {
             case 0: default: return numa ^ numb; break;
-            case -1: return numa << numb; break;
-            case 1: return numa >> numb; break;
+            case -2: return numa << numb; break;
+            case -1: return numa | numb; break;
+            case 2: return numa >> numb; break;
+            case 1: return numa & numb; break;
         }
     }
 
@@ -309,6 +315,85 @@ namespace Math {
             factors.push(n);
         }
         return factors;
+    }
+
+    function matrix(mnum: (number[][]), negative: boolean = false) {
+        if (negative) {
+            if (mnum.length > 0) {
+                for (let i = 0;i < mnum.length;i++) {
+                    let aval = mnum[i]
+                    for (let j = 0;j < aval.length;j++) {
+                        (mnum[i] as number[])[j] = -(aval as number[])[j]
+                    }
+                }
+            }
+        }
+        return mnum
+    }
+
+    function matrixAdd(mna: number[][], mnb: number[][]) {
+        if (mna.length !== mnb.length) return [[]]
+        for (let i = 0;i < mna.length;i++) if (mna[i].length !== mnb[i].length) return[[]]
+        for (let i = 0;i < mna.length;i++) {
+            for (let j = 0;j < mna[i].length;j++) {
+                mna[i][j] += mnb[i][j]
+            }
+        }
+        return mna
+    }
+
+    function matrixSub(mna: number[][], mnb: number[][]) {
+        if (mna.length !== mnb.length) return [[]]
+        for (let i = 0; i < mna.length; i++) if (mna[i].length !== mnb[i].length) return [[]]
+        for (let i = 0; i < mna.length; i++) {
+            for (let j = 0; j < mna[i].length; j++) {
+                mna[i][j] -= mnb[i][j]
+            }
+        }
+        return mna
+    }
+
+    function matrixOneMul(mna: number[][], nv: number) {
+        if (mna.length <= 0) return [[]]
+        for (let i = 0; i < mna.length; i++) if (mna[i].length <= 0) return [[]]
+        for (let i = 0; i < mna.length; i++) {
+            for (let j = 0; j < mna[i].length; j++) {
+                mna[i][j] *= nv
+            }
+        }
+        return mna
+    }
+
+    function matrixOneDiv(mna: number[][], nv: number) {
+        if (mna.length <= 0) return [[]]
+        for (let i = 0; i < mna.length; i++) if (mna[i].length <= 0) return [[]]
+        for (let i = 0; i < mna.length; i++) {
+            for (let j = 0; j < mna[i].length; j++) {
+                if (abs(nv) > 0) mna[i][j] /= nv
+                else mna[i][j] = 0
+            }
+        }
+        return mna
+    }
+
+    function matrixTrans(mna: number[][]) {
+        if (mna.length <= 0) return [[]]
+        for (let i = 0; i < mna.length; i++) if (mna[i].length !== mna.length) return [[]]
+        const mnb = []
+        for (let d = 0; d < mna.length + mna[0].length - 1; d++) {
+            let i = d < mna.length ? d : mna.length - 1;
+            let j = d - mna.length;
+            while (i >= 0 && j < mna[0].length) {
+                mnb.push(mna[abs(i)][abs(j)])
+                i--
+                j++
+            }
+        }
+        for (let i = 0;i < mnb.length;i++) {
+            const x = i % mnb.length, y = floor(i / mnb.length)
+            mna[x][y] = mnb[i]
+        }
+        return mna
     }
 
 }
