@@ -16,9 +16,9 @@ namespace Math {
 
     export enum sumtype {
         //%block="basic sum"
-        basicsum = 0,
+        basic = 0,
         //%block="index sum"
-        indexsum = 1,
+        index = 1,
     }
 
     /**
@@ -28,33 +28,31 @@ namespace Math {
      * @returns modulus number value if mod number is not equal to zero
      */
     //%blockid=math_modval
-    //%block="$numv mod $modv"
+    //%block="$n mod $m"
     //%numv.defl=1 modv.defl=2
     //%group="modulus"
     //%weight=10
-    export function mod(numv: number, modv: number) {
-        modv = abs(modv)
-        if (modv <= 0) return 0
-        return ((numv % modv) + modv) % modv
+    export function mod(n: number, m: number) {
+        return abs(m) > 0 ? ((n % abs(m)) + abs(m)) % abs(m) : 0
     }
 
     /**
      * bit oparetion to calculate in xor shiftleft or shiftright
      * @param current number value
      * @param bitmath oparetion 0=xor, -2=shiftleft, 2=shiftright, -1=bitor, 1=bitand
-     * @param number changing value
+     * @param operate number value
      */
     //%blockid=math_bit_calc
-    //%block="$numa $mbit $numb"
+    //%block="$a $mbit $b"
     //%group="math bit"
     //%weight=10
-    export function bitOperate(numa: number, mbit: bitop, numb: number) {
+    export function bitCalc(a: number, mbit: bitop, b: number) {
         switch (mbit) {
-            case 0: default: return numa ^ numb; break;
-            case -2: return numa << numb; break;
-            case -1: return numa | numb; break;
-            case 2: return numa >> numb; break;
-            case 1: return numa & numb; break;
+            case -2: return a << b
+            case -1: return a | b
+            case 0: default: return a ^ b
+            case 1: return a & b
+            case 2: return a >> b
         }
     }
 
@@ -70,15 +68,11 @@ namespace Math {
     //%offset.defl=1
     //%group="sum"
     //%weight=10
-    export function sumBasic(narr: number[], sumt: sumtype, offset: number = 0) { offset = abs(offset)
-        let sumv = (offset > 0 && sumt <= 0)?offset:0
-        for (let i = 0; i < narr.length; i++) {
-            switch (sumt) {
-                case 0: default: sumv += narr[i]; break;
-                case 1: sumv += narr[i] * ((offset > 0)?((i <= offset)?offset:abs(i-offset)):i+1); break;
-            }
+    export function sumBasic(narr: number[], sumt: sumtype, offset?: number) {
+        switch (sumt) {
+            case 0: default: return narr.reduce((cur, val) => cur + val, 0)
+            case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset ? offset : 0)
         }
-        return sumv
     }
 
     /**
@@ -116,10 +110,7 @@ namespace Math {
     //%group="min and max"
     //%weight=10
     export function maxArr(narr: number[]) {
-        if (narr.length <= 0) return 0
-        let nv = narr[0]
-        for (const vl of narr) nv = max(nv,vl)
-        return nv
+        return narr.length > 0 ? narr.reduce((cur, val) => max(cur, val), narr[0]) : 0
     }
 
     /**
@@ -132,10 +123,7 @@ namespace Math {
     //%group="min and max"
     //%weight=5
     export function minArr(narr: number[]) {
-        if (narr.length <= 0) return 0
-        let nv = narr[0]
-        for (const vl of narr) nv = min(nv,vl)
-        return nv
+        return narr.length > 0 ? narr.reduce((cur, val) => min(cur, val), narr[0]) : 0
     }
 
     /**
@@ -188,9 +176,7 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function lnv(n: number, x: number) {
-        n = abs(n)
-        if (n <= 1) return log(x)
-        return (log(x) / log(n))
+        return n == 0 ? log(x) : (log(x) / log(abs(n)))
     }
 
     /**
@@ -224,11 +210,11 @@ namespace Math {
      * @param x The exponent value.
      * @returns The result of e raised to the power of x.
      */
-    //%blockid=math_expv
+    //%blockid=math_expn
     //%block="e^$x"
     //%group="exponential"
     //%weight=5
-    export function expv(x: number) {
+    export function expn(x: number) {
         return exp(x)
     }
 
@@ -244,7 +230,7 @@ namespace Math {
     //%weight=20
     export function gcd(a: number, b: number): number {
         while (b !== 0) {
-            let temp = b;
+            const temp = b;
             b = a % b;
             a = temp;
         }
@@ -262,8 +248,7 @@ namespace Math {
     //%group="number theory"
     //%weight=15
     export function lcm(a: number, b: number): number {
-        if (a === 0 || b === 0) return 0; // Handle cases where one of the numbers is 0
-        return Math.abs(a * b) / gcd(a, b); // Use Math.abs to ensure the LCM is positive
+        return a == 0 || b == 0 ? 0 : abs(a * b) / gcd(a, b); // Use Math.abs to ensure the LCM is positive
     }
 
     /**
@@ -355,5 +340,23 @@ namespace Math {
         return y
     }
 
+    const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+    export function dec2base(nval: number, radix: number, digit?: number) {
+        const neg = nval < 0
+        nval = round(abs(nval)), radix = constrain(radix, 2, pal.length)
+        let ntxt = ""
+        while ((!digit && nval > 0) || (digit && ntxt.length < digit && nval > 0)) ntxt = pal.charAt(nval % radix) + ntxt, nval = floor(nval / radix)
+        if (!digit || (digit && ntxt.length > digit)) return ntxt
+        while (ntxt.length < digit) ntxt = pal.charAt(0) + ntxt
+        return neg ? "-" + ntxt : ntxt
+    }
+
+    export function base2dec(ntxt: string, radix: number) {
+        const neg = ntxt.charAt(0) == "-"
+        ntxt = ntxt.toLowerCase().substr(neg ? 1 : 0, ntxt.length - (neg ? 1 : 0)), radix = constrain(radix, 2, pal.length)
+        const nval = ntxt.split('').map((v, i) => (max(0, pal.indexOf(v)) * radix ** (ntxt.length - i - 1))).reduce((cur, val) => (cur + val), 0)
+        return neg ? -nval : nval
+    }
 
 }
