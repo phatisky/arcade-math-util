@@ -187,7 +187,7 @@ namespace Math {
     //%block="log base $n of $x"
     //%group="exponential"
     //%weight=10
-    export function logn(n: number, x: number) {
+    export function lnv(n: number, x: number) {
         n = abs(n)
         if (n <= 1) return log(x)
         return (log(x) / log(n))
@@ -202,7 +202,7 @@ namespace Math {
     //%block="log base 10 of $x"
     //%group="exponential"
     //%weight=9
-    export function log10(x: number) {
+    export function ln10(x: number) {
         return (log(x) / log(10))
     }
 
@@ -215,7 +215,7 @@ namespace Math {
     //%block="log base 2 of $x"
     //%group="exponential"
     //%weight=8
-    export function log2(x: number) {
+    export function ln2(x: number) {
         return (log(x) / log(2))
     }
 
@@ -317,83 +317,43 @@ namespace Math {
         return factors;
     }
 
-    function matrix(mnum: (number[][]), negative: boolean = false) {
-        if (negative) {
-            if (mnum.length > 0) {
-                for (let i = 0;i < mnum.length;i++) {
-                    let aval = mnum[i]
-                    for (let j = 0;j < aval.length;j++) {
-                        (mnum[i] as number[])[j] = -(aval as number[])[j]
-                    }
-                }
-            }
-        }
-        return mnum
+    function floatToBits(f: number): number {
+        const buf = control.createBuffer(4)
+        buf.setNumber(NumberFormat.Float32LE, 0, f)
+        return buf.getNumber(NumberFormat.Int32LE, 0)
     }
 
-    function matrixAdd(mna: number[][], mnb: number[][]) {
-        if (mna.length !== mnb.length) return [[]]
-        for (let i = 0;i < mna.length;i++) if (mna[i].length !== mnb[i].length) return[[]]
-        for (let i = 0;i < mna.length;i++) {
-            for (let j = 0;j < mna[i].length;j++) {
-                mna[i][j] += mnb[i][j]
-            }
-        }
-        return mna
+    function bitsToFloat(i: number): number {
+        const buf = control.createBuffer(4)
+        buf.setNumber(NumberFormat.Int32LE, 0, i)
+        return buf.getNumber(NumberFormat.Float32LE, 0)
     }
 
-    function matrixSub(mna: number[][], mnb: number[][]) {
-        if (mna.length !== mnb.length) return [[]]
-        for (let i = 0; i < mna.length; i++) if (mna[i].length !== mnb[i].length) return [[]]
-        for (let i = 0; i < mna.length; i++) {
-            for (let j = 0; j < mna[i].length; j++) {
-                mna[i][j] -= mnb[i][j]
-            }
-        }
-        return mna
+    /**
+     * quake3 the Fast inverse square root
+     * @param the number
+     * @returns fast inverse square root number
+     */
+    //%blockid=math_sqrt_quake3
+    //%block="1/sqrt($n)|| in 2time? twoTime=toggleYesNo"
+    //%group="math bit"
+    //%weight=5
+    export function qrsqrt(n: number, twoTime?: boolean): number {
+        const threehalfs = 1.5
+
+        let x2 = n * 0.5, y = n
+
+        // convert float to int with float32 bit conversion
+        let yBits = floatToBits(y)
+        // Magic number 0x5f3759df and bit shift
+        yBits = 0x5f3759df - (yBits >> 1)
+        // convert back from int to float
+        y = bitsToFloat(yBits)
+        // Newton-Raphson iteration
+        y = y * (threehalfs - (x2 * y * y))
+        if (twoTime) y = y * (threehalfs - (x2 * y * y))
+        return y
     }
 
-    function matrixOneMul(mna: number[][], nv: number) {
-        if (mna.length <= 0) return [[]]
-        for (let i = 0; i < mna.length; i++) if (mna[i].length <= 0) return [[]]
-        for (let i = 0; i < mna.length; i++) {
-            for (let j = 0; j < mna[i].length; j++) {
-                mna[i][j] *= nv
-            }
-        }
-        return mna
-    }
-
-    function matrixOneDiv(mna: number[][], nv: number) {
-        if (mna.length <= 0) return [[]]
-        for (let i = 0; i < mna.length; i++) if (mna[i].length <= 0) return [[]]
-        for (let i = 0; i < mna.length; i++) {
-            for (let j = 0; j < mna[i].length; j++) {
-                if (abs(nv) > 0) mna[i][j] /= nv
-                else mna[i][j] = 0
-            }
-        }
-        return mna
-    }
-
-    function matrixTrans(mna: number[][]) {
-        if (mna.length <= 0) return [[]]
-        for (let i = 0; i < mna.length; i++) if (mna[i].length !== mna.length) return [[]]
-        const mnb = []
-        for (let d = 0; d < mna.length + mna[0].length - 1; d++) {
-            let i = d < mna.length ? d : mna.length - 1;
-            let j = d - mna.length;
-            while (i >= 0 && j < mna[0].length) {
-                mnb.push(mna[abs(i)][abs(j)])
-                i--
-                j++
-            }
-        }
-        for (let i = 0;i < mnb.length;i++) {
-            const x = i % mnb.length, y = floor(i / mnb.length)
-            mna[x][y] = mnb[i]
-        }
-        return mna
-    }
 
 }
