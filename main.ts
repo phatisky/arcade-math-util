@@ -33,7 +33,7 @@ namespace Math {
     //%group="modulus"
     //%weight=10
     export function mod(n: number, m: number) {
-        return m <= 0 ? 0 : ((n % m) + m) % m
+        return m > 0 ? ((n % m) + m) % m : 0
     }
 
     /**
@@ -71,7 +71,7 @@ namespace Math {
     export function sumBasic(narr: number[], sumt: sumtype, offset?: number) {
         switch (sumt) {
             case 0: default: return narr.reduce((cur, val) => cur + val, 0)
-            case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset | 0)
+            case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset ? offset : 0)
         }
     }
 
@@ -162,7 +162,7 @@ namespace Math {
     //%group="exponential"
     //%weight=15
     export function ln(x: number) {
-        return x > 0 ? log(x) : 0
+        return x > 0 ? x != 1 ? log(x) : 1 : 0
     }
 
     /**
@@ -176,7 +176,7 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function lnv(n: number, x: number) {
-        return n > 0 && x > 0 ? (log(x) / log(abs(n))) : 0
+        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 1 : 0
     }
 
     /**
@@ -189,7 +189,7 @@ namespace Math {
     //%group="exponential"
     //%weight=9
     export function ln10(x: number) {
-        return x > 0 ? (log(x) / log(10)) : 0
+        return x > 0 ? x != 1 ? (log(x) / log(10)) : 1 : 0
     }
 
     /**
@@ -202,7 +202,7 @@ namespace Math {
     //%group="exponential"
     //%weight=8
     export function ln2(x: number) {
-        return x > 0 ? (log(x) / log(2)) : 0
+        return x > 0 ? x != 1 ? (log(x) / log(2)) : 1 : 0
     }
 
     /**
@@ -215,7 +215,7 @@ namespace Math {
     //%group="exponential"
     //%weight=5
     export function expn(x: number) {
-        return exp(x)
+        return x > 0 ? exp(x) : 0
     }
 
     /**
