@@ -335,10 +335,10 @@ namespace Math {
      * @returns fast inverse square root number
      */
     //%blockid=math_sqrt_quake3
-    //%block="1/sqrt($n)|| in 2time? $twoTime=toggleYesNo"
+    //%block="1/sqrt($n)|| in real math? $real=toggleYesNo"
     //%group="math bit"
     //%weight=5
-    export function qrsqrt(n: number, twoTime?: boolean): number {
+    export function rsqrtss(n: number, real?: boolean): number {
         const threehalfs = 1.5
 
         let x2 = n * 0.5, y = n
@@ -351,7 +351,7 @@ namespace Math {
         y = bitsToFloat(yBits)
         // Newton-Raphson iteration
         y = y * (threehalfs - (x2 * y * y))
-        if (twoTime) y = y * (threehalfs - (x2 * y * y))
+        if (real) y = y * (threehalfs - (x2 * y * y))
         return y
     }
 
