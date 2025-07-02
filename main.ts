@@ -33,7 +33,7 @@ namespace Math {
     //%group="modulus"
     //%weight=10
     export function mod(n: number, m: number) {
-        return abs(m) > 0 ? ((n % abs(m)) + abs(m)) % abs(m) : 0
+        return m <= 0 ? 0 : ((n % m) + m) % m
     }
 
     /**
@@ -71,7 +71,7 @@ namespace Math {
     export function sumBasic(narr: number[], sumt: sumtype, offset?: number) {
         switch (sumt) {
             case 0: default: return narr.reduce((cur, val) => cur + val, 0)
-            case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset ? offset : 0)
+            case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset | 0)
         }
     }
 
@@ -81,11 +81,11 @@ namespace Math {
      * @returns number array after sorting is done
      */
     //%blockid=math_sort_shell
-    //%block="shell sort for element of $nnarr"
+    //%block="shell sort for element of $narr"
     //%group="sort"
     //%weight=10
-    export function sortShell(nnarr: number[]) {
-        let j: number, i: number, n = nnarr.length, gap = floor(n / 2)
+    export function sortShell(narr: number[]) {
+        let j: number, i: number, nnarr = narr.slice(), n = nnarr.length, gap = floor(n / 2)
         while (gap > 0) {
             for (i = gap; i < n; i++) {
                 const val = nnarr[i]
@@ -162,7 +162,7 @@ namespace Math {
     //%group="exponential"
     //%weight=15
     export function ln(x: number) {
-        return log(x)
+        return x > 0 ? log(x) : 0
     }
 
     /**
@@ -176,7 +176,7 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function lnv(n: number, x: number) {
-        return n == 0 ? log(x) : (log(x) / log(abs(n)))
+        return n > 0 && x > 0 ? (log(x) / log(abs(n))) : 0
     }
 
     /**
@@ -189,7 +189,7 @@ namespace Math {
     //%group="exponential"
     //%weight=9
     export function ln10(x: number) {
-        return (log(x) / log(10))
+        return x > 0 ? (log(x) / log(10)) : 0
     }
 
     /**
@@ -202,7 +202,7 @@ namespace Math {
     //%group="exponential"
     //%weight=8
     export function ln2(x: number) {
-        return (log(x) / log(2))
+        return x > 0 ? (log(x) / log(2)) : 0
     }
 
     /**
@@ -229,11 +229,8 @@ namespace Math {
     //%group="number theory"
     //%weight=20
     export function gcd(a: number, b: number): number {
-        while (b !== 0) {
-            const temp = b;
-            b = a % b;
-            a = temp;
-        }
+        while (b !== 0) { const temp = b;
+            b = a % b, a = temp; }
         return a;
     }
 
@@ -265,9 +262,7 @@ namespace Math {
         if (n <= 3) return true;  // 2 and 3 are prime
         if (n % 2 === 0 || n % 3 === 0) return false; // Multiples of 2 and 3 are not prime
         // Check for factors from 5 to sqrt(n)
-        for (let i = 5; i * i <= n; i += 6) {
-            if (n % i === 0 || n % (i + 2) === 0) return false;
-        }
+        for (let i = 5; i * i <= n; i += 6) if (n % i === 0 || n % (i + 2) === 0) return false;
         return true; // If no factors were found, n is prime
     }
 
@@ -282,33 +277,23 @@ namespace Math {
     //%weight=5
     export function factorize(n: number): number[] {
         if (n < 1) return []; // Handle cases where n is less than 1
-        let factors: number[] = [];
+        const factors: number[] = [];
         // Handle 2 separately
-        while (n % 2 === 0) {
-            factors.push(2);
-            n /= 2;
-        }
+        while (n % 2 === 0) factors.push(2), n /= 2;
         // Handle odd factors
-        for (let i = 3; i * i <= n; i += 2) {
-            while (n % i === 0) {
-                factors.push(i);
-                n /= i;
-            }
-        }
+        for (let i = 3; i * i <= n; i += 2) while (n % i === 0) factors.push(i), n /= i;
         // If n is a prime number greater than 2
-        if (n > 2) {
-            factors.push(n);
-        }
+        if (n > 2) factors.push(n);
         return factors;
     }
 
-    function floatToBits(f: number): number {
+    function floatToInt(f: number): number {
         const buf = control.createBuffer(4)
         buf.setNumber(NumberFormat.Float32LE, 0, f)
         return buf.getNumber(NumberFormat.Int32LE, 0)
     }
 
-    function bitsToFloat(i: number): number {
+    function intToFloat(i: number): number {
         const buf = control.createBuffer(4)
         buf.setNumber(NumberFormat.Int32LE, 0, i)
         return buf.getNumber(NumberFormat.Float32LE, 0)
@@ -329,13 +314,15 @@ namespace Math {
         let x2 = n * 0.5, y = n
 
         // convert float to int with float32 bit conversion
-        let yBits = floatToBits(y)
+        let yBits = floatToInt(y)
         // Magic number 0x5f3759df and bit shift
         yBits = 0x5f3759df - (yBits >> 1)
         // convert back from int to float
-        y = bitsToFloat(yBits)
+        y = intToFloat(yBits)
         // Newton-Raphson iteration
+        // 1st iteration
         y = y * (threehalfs - (x2 * y * y))
+        // 2nd iteration if using real math
         if (real) y = y * (threehalfs - (x2 * y * y))
         return y
     }
