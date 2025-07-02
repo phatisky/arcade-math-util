@@ -335,7 +335,7 @@ namespace Math {
      * @returns fast inverse square root number
      */
     //%blockid=math_sqrt_quake3
-    //%block="1/sqrt($n)|| in 2time? twoTime=toggleYesNo"
+    //%block="1/sqrt($n)|| in 2time? $twoTime=toggleYesNo"
     //%group="math bit"
     //%weight=5
     export function qrsqrt(n: number, twoTime?: boolean): number {
