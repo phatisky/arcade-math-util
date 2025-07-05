@@ -75,16 +75,31 @@ namespace Math {
         }
     }
 
+    export enum sortFormat {
+        //% block="Heap Sort"
+        heapSort = 0,
+        //% block="Shell Sort"
+        shellSort = 1,
+    }
+
     /**
-     * get sorted with shell sort
+     * get sorted with sorting algorithm format
      * @param number array to sort
-     * @returns number array after sorting is done
+     * @param sorting algorithm format
+     * @returns number array after sorting is successfully
      */
-    //%blockid=math_sort_shell
-    //%block="shell sort for element of $narr"
+    //%blockid=math_array_sort
+    //%block="get $narr sorting|| by $sortType"
     //%group="sort"
     //%weight=10
-    export function sortShell(narr: number[]) {
+    export function sort(narr: number[], sortType?: sortFormat) {
+        switch(sortType) {
+            case 0: default: return heapSort(narr)
+            case 1: return shellSort(narr)
+        }
+    }
+
+    function shellSort(narr: number[]) {
         let j: number, i: number, nnarr = narr.slice(), n = nnarr.length, gap = floor(n / 2)
         while (gap > 0) {
             for (i = gap; i < n; i++) {
@@ -98,6 +113,27 @@ namespace Math {
             gap = floor(gap / 2)
         }
         return nnarr
+    }
+
+    function heapSort(narr: number[]) {
+        const sortedArray = narr.slice(), n = sortedArray.length;
+        // make heapify for every parent node
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(sortedArray, n, i);
+        // spliting every argument of heap
+        for (let i = n - 1; i >= 1; i--) [sortedArray[i], sortedArray[0]] = [sortedArray[0], sortedArray[i]], heapify(sortedArray, i, 0);
+        return sortedArray;
+    }
+
+    function heapify(arr: number[], n: number, rootIndex: number) {
+        let currentIndex = rootIndex;
+        while (true) {
+            let largest = currentIndex;
+            const leftChild = 2 * currentIndex + 1, rightChild = 2 * currentIndex + 2;
+            if (leftChild < n && arr[leftChild] > arr[largest]) largest = leftChild;
+            if (rightChild < n && arr[rightChild] > arr[largest]) largest = rightChild;
+            if (largest !== currentIndex) [arr[currentIndex], arr[largest]] = [arr[largest], arr[currentIndex]], currentIndex = largest; // เปลี่ยนตำแหน่งไปยังโหนดที่สลับ
+            else break;
+        }
     }
 
     /**
