@@ -100,16 +100,11 @@ namespace Math {
     }
 
     function shellSort(narr: number[]) {
-        let j: number, i: number, nnarr = narr.slice(), n = nnarr.length, gap = floor(n / 2)
+        let j: number, i: number, nnarr = narr.slice(), gap = floor(nnarr.length / 2)
         while (gap > 0) {
-            for (i = gap; i < n; i++) {
-                const val = nnarr[i]
-                for (j = i; (j >= 0 && nnarr[j - gap] > val); j -= gap) {
-                    const duoval = [nnarr[j], nnarr[j - gap]]
-                    nnarr[j] = duoval[1], nnarr[j - gap] = duoval[0]
-                }
-                nnarr[j] = val
-            }
+            for (i = gap; i < nnarr.length; i++) { const val = nnarr[i]
+                for (j = i; (j >= 0 && nnarr[j - gap] > val); j -= gap) [nnarr[j], nnarr[j - gap] ] = [nnarr[j - gap], nnarr[j]]
+                nnarr[j] = val }
             gap = floor(gap / 2)
         }
         return nnarr
