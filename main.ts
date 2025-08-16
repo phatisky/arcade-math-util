@@ -41,7 +41,8 @@ namespace Math {
     //%group="modulus"
     //%weight=10
     export function mod(n: number, m: number) {
-        return m > 0 ? ((n % m) + m) % m : 0
+        if (isNaN(n) || isNaN(m)) return NaN
+        return m > 0 ? ((n % m) + m) % m : NaN
     }
 
     /**
@@ -55,13 +56,15 @@ namespace Math {
     //%group="math bit"
     //%weight=10
     export function bitCalc(a: number, mbit: bitop, b: number) {
+        if (isNaN(a) || isNaN(b)) return NaN
         switch (mbit) {
             case -2: return a << b
             case -1: return a | b
-            case 0: default: return a ^ b
+            case 0: return a ^ b
             case 1: return a & b
             case 2: return a >> b
         }
+        return NaN
     }
 
     /**
@@ -77,11 +80,13 @@ namespace Math {
     //%group="sum"
     //%weight=10
     export function sumBasic(narr: number[], sumt: sumtype, offset?: number) {
+        if (narr.length <= 0) return NaN
         switch (sumt) {
-            case 0: default: return narr.reduce((cur, val) => cur + val, 0)
+            case 0: return narr.reduce((cur, val) => cur + val, 0)
             case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset ? offset : 0)
             case 2: return narr.reduce((cur, val) => cur + val, 0) / narr.length
         }
+        return NaN
     }
 
     export enum sortFormat {
@@ -102,10 +107,12 @@ namespace Math {
     //%group="sort"
     //%weight=10
     export function sort(narr: number[], sortType?: sortFormat) {
-        switch(sortType) {
-            case 0: default: return heapSort(narr)
+        if (narr.length <= 0) return null
+        switch (sortType) {
+            case 0: return heapSort(narr)
             case 1: return shellSort(narr)
         }
+        return null
     }
 
     function shellSort(narr: number[]) {
@@ -204,7 +211,7 @@ namespace Math {
     //%group="exponential"
     //%weight=15
     export function ln(x: number) {
-        return x > 0 ? x != 1 ? log(x) : 1 : NaN
+        return x > 0 ? x != 1 ? log(x) : 0 : NaN
     }
 
     /**
@@ -218,7 +225,7 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function lnv(n: number, x: number) {
-        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 1 : NaN
+        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 0 : NaN
     }
 
     /**
@@ -231,7 +238,7 @@ namespace Math {
     //%group="exponential"
     //%weight=9
     export function ln10(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(10)) : 1 : NaN
+        return x > 0 ? x != 1 ? (log(x) / log(10)) : 0 : NaN
     }
 
     /**
@@ -244,7 +251,7 @@ namespace Math {
     //%group="exponential"
     //%weight=8
     export function ln2(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(2)) : 1 : NaN
+        return x > 0 ? x != 1 ? (log(x) / log(2)) : 0 : NaN
     }
 
     /**
@@ -271,6 +278,7 @@ namespace Math {
     //%group="number theory"
     //%weight=20
     export function gcd(a: number, b: number): number {
+        if (isNaN(a) || isNaN(b)) return NaN
         while (b !== 0) [a, b] = [b, a % b]
         return a;
     }
@@ -286,6 +294,7 @@ namespace Math {
     //%group="number theory"
     //%weight=15
     export function lcm(a: number, b: number): number {
+        if (isNaN(a) || isNaN(b)) return NaN
         return a == 0 || b == 0 ? 0 : abs(a * b) / gcd(a, b); // Use Math.abs to ensure the LCM is positive
     }
 
@@ -335,13 +344,13 @@ namespace Math {
      * @returns fast inverse square root number
      */
     //%blockid=math_sqrt_fast_inverse
-    //%block="1/sqrt($x)|| with iteraction $n"
-    //%n.min=1 n.max=3 n.defl=2
+    //%block="1 / sqrt($x)|| with iteration $n"
+    //%n.defl=2 n.min=1 n.max=3
     //%group="math bit"
     //%weight=5
     export function fisqrt(x: number, n?: number): number {
-        if (x <= 0) return 0;
-        if (!n) n = 2;
+        if (x <= 0 || isNaN(x)) return NaN;
+        if (!n || isNaN(n)) n = 2;
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
         let i = buf.getNumber(NumberFormat.Int32LE, 0);
@@ -360,12 +369,12 @@ namespace Math {
      * @returns fast square root number
      */
     //%blockid=math_sqrt_fast
-    //%block="fast sqrt($x)|| with iteraction $n"
-    //%n.min=1 n.max=3 n.defl=2
+    //%block="fast sqrt($x)|| with iteration $n"
+    //%n.defl=2 n.min=1 n.max=3
     //%group="math bit"
     //%weight=2
     export function fsqrt(x: number, n?: number) {
-        return 1 / fisqrt(x, n)
+        return x <= 0 || isNaN(x) ? NaN : 1 / fisqrt(x, n)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -381,6 +390,7 @@ namespace Math {
     }
 
     export function base2dec(ntxt: string, radix: number) {
+        if (ntxt.split('').some(v => pal.indexOf(v) < 0)) return NaN
         const neg = ntxt.charAt(0) == "-"
         ntxt = ntxt.toLowerCase().substr(neg ? 1 : 0, ntxt.length - (neg ? 1 : 0)), radix = constrain(radix, 2, pal.length)
         const nval = ntxt.split('').map((v, i) => (max(0, pal.indexOf(v)) * radix ** (ntxt.length - i - 1))).reduce((cur, val) => (cur + val), 0)
