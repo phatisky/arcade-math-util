@@ -19,6 +19,8 @@ namespace Math {
         basic = 0,
         //%block="index sum"
         index = 1,
+        //%block="average sum"
+        avg = 2,
     }
 
     /**
@@ -72,6 +74,7 @@ namespace Math {
         switch (sumt) {
             case 0: default: return narr.reduce((cur, val) => cur + val, 0)
             case 1: return narr.reduce((cur, val, idx) => cur + val * (offset ? (idx < abs(offset) ? offset : abs(idx + 1 - abs(offset))) : idx + 1), offset ? offset : 0)
+            case 2: return narr.reduce((cur, val) => cur + val, 0) / narr.length
         }
     }
 
