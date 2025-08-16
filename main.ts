@@ -126,7 +126,7 @@ namespace Math {
             const leftChild = 2 * currentIndex + 1, rightChild = 2 * currentIndex + 2;
             if (leftChild < n && arr[leftChild] > arr[largest]) largest = leftChild;
             if (rightChild < n && arr[rightChild] > arr[largest]) largest = rightChild;
-            if (largest !== currentIndex) [arr[currentIndex], arr[largest]] = [arr[largest], arr[currentIndex]], currentIndex = largest; // เปลี่ยนตำแหน่งไปยังโหนดที่สลับ
+            if (largest !== currentIndex) [arr[currentIndex], arr[largest]] = [arr[largest], arr[currentIndex]], currentIndex = largest;
             else break;
         }
     }
@@ -141,7 +141,7 @@ namespace Math {
     //%group="min and max"
     //%weight=10
     export function maxArr(narr: number[]) {
-        return narr.length > 0 ? narr.reduce((cur, val) => max(cur, val), narr[0]) : 0
+        return narr.length > 0 ? narr.reduce((cur, val) => max(cur, val), narr[0]) : NaN
     }
 
     /**
@@ -154,8 +154,10 @@ namespace Math {
     //%group="min and max"
     //%weight=5
     export function minArr(narr: number[]) {
-        return narr.length > 0 ? narr.reduce((cur, val) => min(cur, val), narr[0]) : 0
+        return narr.length > 0 ? narr.reduce((cur, val) => min(cur, val), narr[0]) : NaN
     }
+
+    const d2r = PI / 180
 
     /**
      * get convert number value from degree to radian
@@ -167,8 +169,10 @@ namespace Math {
     //%group="angle convert"
     //%weight=10
     export function deg2rad(nv: number) {
-        return nv * (PI / 180)
+        return nv * d2r
     }
+
+    const r2d = 180 / PI
 
     /**
      * get convert number value from radian to degree
@@ -180,7 +184,7 @@ namespace Math {
     //%group="angle convert"
     //%weight=5
     export function rad2deg(nv: number) {
-        return nv * (180 / PI)
+        return nv * r2d
     }
 
     /**
@@ -193,7 +197,7 @@ namespace Math {
     //%group="exponential"
     //%weight=15
     export function ln(x: number) {
-        return x > 0 ? x != 1 ? log(x) : 1 : 0
+        return x > 0 ? x != 1 ? log(x) : 1 : NaN
     }
 
     /**
@@ -207,7 +211,7 @@ namespace Math {
     //%group="exponential"
     //%weight=10
     export function lnv(n: number, x: number) {
-        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 1 : 0
+        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 1 : NaN
     }
 
     /**
@@ -220,7 +224,7 @@ namespace Math {
     //%group="exponential"
     //%weight=9
     export function ln10(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(10)) : 1 : 0
+        return x > 0 ? x != 1 ? (log(x) / log(10)) : 1 : NaN
     }
 
     /**
@@ -233,7 +237,7 @@ namespace Math {
     //%group="exponential"
     //%weight=8
     export function ln2(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(2)) : 1 : 0
+        return x > 0 ? x != 1 ? (log(x) / log(2)) : 1 : NaN
     }
 
     /**
@@ -246,7 +250,7 @@ namespace Math {
     //%group="exponential"
     //%weight=5
     export function expn(x: number) {
-        return x > 0 ? exp(x) : 0
+        return x > 0 ? exp(x) : NaN
     }
 
     /**
@@ -260,8 +264,7 @@ namespace Math {
     //%group="number theory"
     //%weight=20
     export function gcd(a: number, b: number): number {
-        while (b !== 0) { const temp = b;
-            b = a % b, a = temp; }
+        while (b !== 0) [a, b] = [b, a % b]
         return a;
     }
 
@@ -318,44 +321,44 @@ namespace Math {
         return factors;
     }
 
-    function floatToInt(f: number): number {
-        const buf = control.createBuffer(4)
-        buf.setNumber(NumberFormat.Float32LE, 0, f)
-        return buf.getNumber(NumberFormat.Int32LE, 0)
-    }
-
-    function intToFloat(i: number): number {
-        const buf = control.createBuffer(4)
-        buf.setNumber(NumberFormat.Int32LE, 0, i)
-        return buf.getNumber(NumberFormat.Float32LE, 0)
-    }
-
     /**
      * quake3 the Fast inverse square root
      * @param the number
+     * @param iteraction number
      * @returns fast inverse square root number
      */
-    //%blockid=math_sqrt_quake3
-    //%block="1/sqrt($n)|| in real math? $real=toggleYesNo"
+    //%blockid=math_sqrt_fast_inverse
+    //%block="1/sqrt($x)|| with iteraction $n"
+    //%n.min=1 n.max=3 n.defl=2
     //%group="math bit"
     //%weight=5
-    export function rsqrtss(n: number, real?: boolean): number {
-        const threehalfs = 1.5
+    export function fisqrt(x: number, n?: number): number {
+        if (x <= 0) return 0;
+        if (!n) n = 2;
+        const buf = pins.createBuffer(4);
+        buf.setNumber(NumberFormat.Float32LE, 0, x);
+        let i = buf.getNumber(NumberFormat.Int32LE, 0);
+        i = 0x5f3759df - (i >> 1);
+        buf.setNumber(NumberFormat.Int32LE, 0, i);
+        let y = buf.getNumber(NumberFormat.Float32LE, 0);
+        // n iteration Newton-Raphson
+        for (let j = 0 ; j < n ; j++) y = y * (1.5 - (0.5 * x * y * y));
+        return y;
+    }
 
-        let x2 = n * 0.5, y = n
-
-        // convert float to int with float32 bit conversion
-        let yBits = floatToInt(y)
-        // Magic number 0x5f3759df and bit shift
-        yBits = 0x5f3759df - (yBits >> 1)
-        // convert back from int to float
-        y = intToFloat(yBits)
-        // Newton-Raphson iteration
-        // 1st iteration
-        y = y * (threehalfs - (x2 * y * y))
-        // 2nd iteration if using real math
-        if (real) y = y * (threehalfs - (x2 * y * y))
-        return y
+    /**
+     * the Fast square root
+     * @param the number
+     * @param iteraction number
+     * @returns fast square root number
+     */
+    //%blockid=math_sqrt_fast
+    //%block="fast sqrt($x)|| with iteraction $n"
+    //%n.min=1 n.max=3 n.defl=2
+    //%group="math bit"
+    //%weight=2
+    export function fsqrt(x: number, n?: number) {
+        return 1 / fisqrt(x, n)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
