@@ -23,6 +23,12 @@ namespace Math {
         avg = 2,
     }
 
+    function newArr(len: number) {
+        const nularr: any[] = []
+        for (let _i = 0;_i < len;_i++) nularr.push(null)
+        return nularr
+    }
+
     /**
      * get modules by normal number or negative number to get modules by another
      * @param number value to devide
@@ -115,10 +121,8 @@ namespace Math {
 
     function heapSort(narr: number[]) {
         const sortedArray = narr.slice(), n = sortedArray.length;
-        // make heapify for every parent node
-        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(sortedArray, n, i);
-        // spliting every argument of heap
-        for (let i = n - 1; i >= 1; i--) [sortedArray[i], sortedArray[0]] = [sortedArray[0], sortedArray[i]], heapify(sortedArray, i, 0);
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(sortedArray, n, i);// make heapify for every parent node
+        for (let i = n - 1; i >= 1; i--) [sortedArray[i], sortedArray[0]] = [sortedArray[0], sortedArray[i]], heapify(sortedArray, i, 0);// spliting every argument of heap
         return sortedArray;
     }
 
