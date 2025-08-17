@@ -37,12 +37,12 @@ namespace Math {
      */
     //%blockid=math_modval
     //%block="$n mod $m"
-    //%numv.defl=1 modv.defl=2
+    //%n.defl=1 m.defl=2
     //%group="modulus"
     //%weight=10
     export function mod(n: number, m: number) {
         if (isNaN(n) || isNaN(m)) return NaN
-        return m > 0 ? ((n % m) + m) % m : NaN
+        return m > 0 ? ((n % m) + m) % m : 0
     }
 
     /**
@@ -103,10 +103,10 @@ namespace Math {
      * @returns number array after sorting is successfully
      */
     //%blockid=math_array_sort
-    //%block="get $narr sorting|| by $sortType"
+    //%block="get $narr sorting with $sortType"
     //%group="sort"
     //%weight=10
-    export function sort(narr: number[], sortType?: sortFormat) {
+    export function sort(narr: number[], sortType: sortFormat) {
         if (narr.length <= 0) return null
         switch (sortType) {
             case 0: return heapSort(narr)
@@ -345,7 +345,7 @@ namespace Math {
      */
     //%blockid=math_sqrt_fast_inverse
     //%block="1 / sqrt($x)|| with iteration $n"
-    //%n.defl=2 n.min=1 n.max=3
+    //%n.defl=2 n.min=1 n.max=10
     //%group="math bit"
     //%weight=5
     export function fisqrt(x: number, n?: number): number {
@@ -370,7 +370,7 @@ namespace Math {
      */
     //%blockid=math_sqrt_fast
     //%block="fast sqrt($x)|| with iteration $n"
-    //%n.defl=2 n.min=1 n.max=3
+    //%n.defl=2 n.min=1 n.max=10
     //%group="math bit"
     //%weight=2
     export function fsqrt(x: number, n?: number) {
