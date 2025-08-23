@@ -30,19 +30,35 @@ namespace Math {
     }
 
     /**
-     * get modules by normal number or negative number to get modules by another
+     * get modulo value with modulo calculator 'a-(b*floor(a/b))'
      * @param number value to devide
      * @param modules devided number value and get zero if mod value equal to zero
      * @returns modulus number value if mod number is not equal to zero
      */
-    //%blockid=math_modval
-    //%block="$n mod $m"
-    //%n.defl=1 m.defl=2
+    //%blockid=math_mod_realcalculate
+    //%block="$a mod $b"
+    //%a.defl=1 b.defl=2
     //%group="modulus"
     //%weight=10
-    export function mod(n: number, m: number) {
-        if (isNaN(n) || isNaN(m)) return NaN
-        return m > 0 ? ((n % m) + m) % m : 0
+    export function mod(a: number, b: number) {
+        if (isNaN(a) || isNaN(b)) return NaN
+        return b > 0 ? a - (b * Math.floor(a / b)) : 0
+    }
+
+    /**
+     * get modulo value with vanilla modulo '((a%b)+b)%b'
+     * @param number value to devide
+     * @param modules devided number value and get zero if mod value equal to zero
+     * @returns modulus number value if mod number is not equal to zero
+     */
+    //%blockid=math_mod_original
+    //%block="$a rem $b"
+    //%a.defl=1 b.defl=2
+    //%group="modulus"
+    //%weight=9
+    export function rem(a: number, b: number) {
+        if (isNaN(a) || isNaN(b)) return NaN
+        return b > 0 ? ((a % b) + b) % b : 0
     }
 
     /**
@@ -345,12 +361,12 @@ namespace Math {
      */
     //%blockid=math_sqrt_fast_inverse
     //%block="1 / sqrt($x)|| with iteration $n"
-    //%n.defl=2 n.min=1 n.max=10
+    //%n.defl=4 n.min=1 n.max=10
     //%group="math bit"
     //%weight=5
     export function fisqrt(x: number, n?: number): number {
-        if (x <= 0 || isNaN(x)) return NaN;
-        if (!n || isNaN(n)) n = 2;
+        if (x < 0 || isNaN(x)) return NaN;
+        if (!n || isNaN(n)) n = 4;
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
         let i = buf.getNumber(NumberFormat.Int32LE, 0);
@@ -358,7 +374,7 @@ namespace Math {
         buf.setNumber(NumberFormat.Int32LE, 0, i);
         let y = buf.getNumber(NumberFormat.Float32LE, 0);
         // n iteration Newton-Raphson
-        for (let j = 0 ; j < n ; j++) y = y * (1.5 - (0.5 * x * y * y));
+        for (let j = 0 ; j < n ; j++) y = y * (1.5 - ((0.5 * x) * (y * y)));
         return y;
     }
 
@@ -370,11 +386,12 @@ namespace Math {
      */
     //%blockid=math_sqrt_fast
     //%block="fast sqrt($x)|| with iteration $n"
-    //%n.defl=2 n.min=1 n.max=10
+    //%n.defl=4 n.min=1 n.max=10
     //%group="math bit"
     //%weight=2
     export function fsqrt(x: number, n?: number) {
-        return x <= 0 || isNaN(x) ? NaN : 1 / fisqrt(x, n)
+        if (!n || isNaN(n)) n = 4;
+        return x < 0 || isNaN(x) ? NaN : x * fisqrt(x, n)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
