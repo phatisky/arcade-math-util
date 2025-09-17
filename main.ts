@@ -30,33 +30,33 @@ namespace Math {
     }
 
     /**
-     * get modulo value with modulo calculator 'a-(b*floor(a/b))'
+     * get modulo value with bit modulo power of two 'a%2^n = a&(2^n - 1)'
      * @param number value to devide
      * @param modules devided number value and get zero if mod value equal to zero
      * @returns modulus number value if mod number is not equal to zero
      */
-    //%blockid=math_mod_realcalculate
-    //%block="$a mod $b"
+    //%blockid=math_mod_bit2
+    //%block="$a mod2 $b"
     //%a.defl=1 b.defl=2
     //%group="modulus"
     //%weight=10
-    export function mod(a: number, b: number) {
+    export function mod2(a: number, b: number) {
         if (isNaN(a) || isNaN(b)) return NaN
-        return b > 0 ? a - (b * Math.floor(a / b)) : 0
+        return b > 0 ? (a & (b-1) + b) & (b-1) : 0
     }
 
     /**
-     * get modulo value with vanilla modulo '((a%b)+b)%b'
+     * get modulo value with modulo 'a%b = a&(b-1)'
      * @param number value to devide
      * @param modules devided number value and get zero if mod value equal to zero
      * @returns modulus number value if mod number is not equal to zero
      */
-    //%blockid=math_mod_original
-    //%block="$a rem $b"
+    //%blockid=math_mod_home
+    //%block="$a mod $b"
     //%a.defl=1 b.defl=2
     //%group="modulus"
     //%weight=9
-    export function rem(a: number, b: number) {
+    export function mod(a: number, b: number) {
         if (isNaN(a) || isNaN(b)) return NaN
         return b > 0 ? ((a % b) + b) % b : 0
     }
@@ -103,6 +103,10 @@ namespace Math {
             case 2: return narr.reduce((cur, val) => cur + val, 0) / narr.length
         }
         return NaN
+    }
+
+    export function lerp(a: number, b: number, t: number) {
+        return a + (t * (b - a))
     }
 
     export enum sortFormat {
@@ -227,7 +231,7 @@ namespace Math {
     //%group="exponential"
     //%weight=15
     export function ln(x: number) {
-        return x > 0 ? x != 1 ? log(x) : 0 : NaN
+        return x > 0 ? Math.log(x) : NaN
     }
 
     /**
@@ -240,8 +244,8 @@ namespace Math {
     //%block="log base $n of $x"
     //%group="exponential"
     //%weight=10
-    export function lnv(n: number, x: number) {
-        return n > 0 && x > 0 ? n != 1 && x != 1 ? (log(x) / log(abs(n))) : 0 : NaN
+    export function logn(n: number, x: number) {
+        return n > 0 && x > 0 ? (Math.log(x) / Math.log(n)) : NaN
     }
 
     /**
@@ -253,8 +257,8 @@ namespace Math {
     //%block="log base 10 of $x"
     //%group="exponential"
     //%weight=9
-    export function ln10(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(10)) : 0 : NaN
+    export function log10(x: number) {
+        return x > 0 ? (log(x) / Math.LOG10E) : NaN
     }
 
     /**
@@ -266,8 +270,8 @@ namespace Math {
     //%block="log base 2 of $x"
     //%group="exponential"
     //%weight=8
-    export function ln2(x: number) {
-        return x > 0 ? x != 1 ? (log(x) / log(2)) : 0 : NaN
+    export function log2(x: number) {
+        return x > 0 ? (log(x) / Math.LOG2E) : NaN
     }
 
     /**
@@ -295,7 +299,10 @@ namespace Math {
     //%weight=20
     export function gcd(a: number, b: number): number {
         if (isNaN(a) || isNaN(b)) return NaN
-        while (b !== 0) [a, b] = [b, a % b]
+        while (b !== a) {
+            if (a > b) a -= b;
+            else       b -= a;
+        }
         return a;
     }
 
@@ -311,7 +318,7 @@ namespace Math {
     //%weight=15
     export function lcm(a: number, b: number): number {
         if (isNaN(a) || isNaN(b)) return NaN
-        return a == 0 || b == 0 ? 0 : abs(a * b) / gcd(a, b); // Use Math.abs to ensure the LCM is positive
+        return a === 0 || b === 0 ? 0 : abs(a * b) / gcd(a, b); // Use Math.abs to ensure the LCM is positive
     }
 
     /**
@@ -326,9 +333,9 @@ namespace Math {
     export function isPrime(n: number): boolean {
         if (n <= 1) return false; // Numbers less than or equal to 1 are not prime
         if (n <= 3) return true;  // 2 and 3 are prime
-        if (n % 2 === 0 || n % 3 === 0) return false; // Multiples of 2 and 3 are not prime
+        if ((n & 1) === 0 || (n & 2) === 0) return false; // Multiples of 2 and 3 are not prime
         // Check for factors from 5 to sqrt(n)
-        for (let i = 5; i * i <= n; i += 6) if (n % i === 0 || n % (i + 2) === 0) return false;
+        for (let i = 5; i * i <= n; i += 6) if ((n & (i-1)) === 0 || (n & (i+1)) === 0) return false;
         return true; // If no factors were found, n is prime
     }
 
@@ -345,28 +352,28 @@ namespace Math {
         if (n < 1) return []; // Handle cases where n is less than 1
         const factors: number[] = [];
         // Handle 2 separately
-        while (n % 2 === 0) factors.push(2), n /= 2;
+        while ((n & 1) === 0) factors.push(2), n /= 2;
         // Handle odd factors
-        for (let i = 3; i * i <= n; i += 2) while (n % i === 0) factors.push(i), n /= i;
+        for (let i = 3; i * i <= n; i += 2) while ((n & (i-1)) === 0) factors.push(i), n /= i;
         // If n is a prime number greater than 2
         if (n > 2) factors.push(n);
         return factors;
     }
 
     /**
-     * quake3 the Fast inverse square root
+     * quake3 the Fast inverse square root '1/sqrt(x) = q_rsqrt(x)'
      * @param the number
      * @param iteraction number
      * @returns fast inverse square root number
      */
     //%blockid=math_sqrt_fast_inverse
     //%block="1 / sqrt($x)|| with iteration $n"
-    //%n.defl=4 n.min=1 n.max=10
+    //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=5
-    export function fisqrt(x: number, n?: number): number {
+    export function q_rsqrt(x: number, n?: number): number {
         if (x < 0 || isNaN(x)) return NaN;
-        if (!n || isNaN(n)) n = 4;
+        if (!n || isNaN(n)) n = 1;
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
         let i = buf.getNumber(NumberFormat.Int32LE, 0);
@@ -379,19 +386,19 @@ namespace Math {
     }
 
     /**
-     * the Fast square root
+     * the Fast square root 'sqrt(x) = x*q_rsqrt(x)'
      * @param the number
      * @param iteraction number
      * @returns fast square root number
      */
     //%blockid=math_sqrt_fast
     //%block="fast sqrt($x)|| with iteration $n"
-    //%n.defl=4 n.min=1 n.max=10
+    //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=2
-    export function fsqrt(x: number, n?: number) {
-        if (!n || isNaN(n)) n = 4;
-        return x < 0 || isNaN(x) ? NaN : x * fisqrt(x, n)
+    export function q_sqrt(x: number, n?: number) {
+        if (!n || isNaN(n)) n = 1;
+        return x < 0 || isNaN(x) ? NaN : x * q_rsqrt(x, n)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
