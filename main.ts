@@ -1,4 +1,4 @@
-namespace Math {
+namespace MathUtil {
 
     export enum bitop {
         //%block="^"
@@ -222,6 +222,12 @@ namespace Math {
         return nv * r2d
     }
 
+    export function blog(n: number) {
+        let ln = 0
+        while (n >>= 1) ln++;
+        return ln
+    }
+
     /**
      * Computes the natural logarithm ln(x) for a given value of x.
      * @param x The input value.
@@ -231,7 +237,7 @@ namespace Math {
     //%block="log $x"
     //%group="exponential"
     //%weight=15
-    export function ln(x: number) {
+    export function log(x: number) {
         return x > 0 ? x != 1 ? Math.log(x) : 0 : NaN
     }
 
@@ -284,7 +290,7 @@ namespace Math {
     //%block="e^$x"
     //%group="exponential"
     //%weight=5
-    export function expn(x: number) {
+    export function exp(x: number) {
         return x > 0 ? Math.exp(x) : NaN
     }
 
@@ -299,7 +305,7 @@ namespace Math {
     //%group="number theory"
     //%weight=20
     export function gcd(a: number, b: number): number {
-        if (isNaN(a) || isNaN(b)) return NaN
+        if ((a | b) < 0) return 0
         while (a !== b) { if (a > b) a -= b; else b -= a; }
         return a;
     }
@@ -315,8 +321,7 @@ namespace Math {
     //%group="number theory"
     //%weight=15
     export function lcm(a: number, b: number): number {
-        if (isNaN(a) || isNaN(b)) return NaN
-        return a == 0 || b == 0 ? 0 : Math.abs(a * b) / gcd(a, b);
+        return +((a | b) > 0) * (Math.abs(a * b) / imax(gcd(a, b), 1));
     }
 
     /**
@@ -344,6 +349,7 @@ namespace Math {
     //%group="number theory"
     //%weight=12
     export function bgcd(a: number, b: number): number {
+        if ((a | b) < 0) return 0;
         if (a === 0) return b;
         if (b === 0) return a;
         let shift = 0;
@@ -364,8 +370,7 @@ namespace Math {
     //%group="number theory"
     //%weight=11
     export function blcm(a: number, b: number): number {
-        if (isNaN(a) || isNaN(b)) return NaN
-        return a === 0 || b === 0 ? 0 : babs(a * b) / bgcd(a, b);
+        return +((a | b) > 0) * babs(a * b) * frcp(imax(bgcd(a, b), 1));
     }
 
     /**
@@ -380,7 +385,7 @@ namespace Math {
     export function isPrime(n: number): boolean {
         if (n <= 1) return false;         
         if (n <= 3) return true;
-        if (n % 2 === 0 || n % 3 === 0) return false;
+        if ((n & 1) === 0 || n % 3 === 0) return false;
         for (let i = 5; i * i <= n; i += 6) if (n % i === 0 || n % (i + 2) === 0) return false;
         return true;
     }
@@ -398,9 +403,9 @@ namespace Math {
         if (n < 1) return []; // Handle cases where n is less than 1
         const factors: number[] = [];
         // Handle 2 separately
-        while ((n & 1) === 0) factors.push(2), n /= 2;
+        while ((n & 1) === 0) factors.push(2), n *= 0.5;
         // Handle odd factors
-        for (let i = 3; i * i <= n; i += 2) while ((n & (i-1)) === 0) factors.push(i), n /= i;
+        for (let i = 3; i * i <= n; i += 2) while ((n % i) === 0) factors.push(i), n = (n * frcp(i)) | 0;
         // If n is a prime number greater than 2
         if (n > 2) factors.push(n);
         return factors;
@@ -417,16 +422,16 @@ namespace Math {
     //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=5
-    export function q_rsqrt(x: number): number {
-        if (x < 0 || isNaN(x)) return NaN;
+    export function q_rsqrt(x: number, s?: boolean): number {
+        if (!x || x <= 0) return NaN;
+        let r = +(!s) + (+(s) * 5)
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
-        let i = buf.getNumber(NumberFormat.Int32LE, 0);
-        i = 0x5f3759df - (i >> 1);
-        buf.setNumber(NumberFormat.Int32LE, 0, i);
+        const z = 0x5f3759df - (buf.getNumber(NumberFormat.Int32LE, 0) >> 1);
+        buf.setNumber(NumberFormat.Int32LE, 0, z);
         let y = buf.getNumber(NumberFormat.Float32LE, 0);
         // iteration Newton-Raphson
-        y = y * (1.5 - ((0.5 * x) * (y * y)));
+        while (r--) y = y * (1.5 - ((0.5 * x) * (y * y)));
         return y;
     }
 
@@ -443,25 +448,59 @@ namespace Math {
     //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=2
-    export function q_sqrt(x: number) {
-        return x <= 0 || isNaN(x) ? NaN : x * q_rsqrt(x)
+    export function q_sqrt(x: number, s?: boolean) {
+        if (!x || x <= 0) return NaN;
+        return x * q_rsqrt(x, s)
     }
 
-    export function q_rcbrt(x: number): number {
-        if (x < 0 || isNaN(x)) return NaN;
+    export function q_rcbrt(x: number, s?: boolean): number {
+        if (!x || x <= 0) return NaN;
+        let r = +(!s) + (+(s) * 5)
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
-        let i = buf.getNumber(NumberFormat.Int32LE, 0);
-        i = 0x54a21d2a - (i * 0.333333333);
-        buf.setNumber(NumberFormat.Int32LE, 0, i);
+        const z = 0x54a21d2a - (buf.getNumber(NumberFormat.Int32LE, 0) * 0.333333333);
+        buf.setNumber(NumberFormat.Int32LE, 0, z);
         let y = buf.getNumber(NumberFormat.Float32LE, 0);
         // iteration Newton-Raphson
-        y = y * (1.3333333 - ((0.33333333 * x) * (y * y * y)));
+        while (r--) y = y * (1.3333333 - 0.33333333 * (x * y * y * y));
         return y;
     }
 
-    export function q_cbrt(x: number) {
-        return x * q_rcbrt(x)
+    export function q_cbrt(x: number, s?: boolean) {
+        if (!x || x <= 0) return NaN;
+        return x * q_rcbrt(x, s)
+    }
+
+    export function frcp(x: number, s?: boolean) {
+        if (!x || x <= 0) return NaN;
+        let r = +(!s) + (+(s) * 4)
+        const buf = control.createBuffer(4);
+        buf.setNumber(NumberFormat.Float32LE, 0, x);
+        const z = 0x7ef00000 - buf.getNumber(NumberFormat.Int32LE, 0);
+        buf.setNumber(NumberFormat.Int32LE, 0, z);
+        let y = buf.getNumber(NumberFormat.Float32LE, 0);
+        while (r--) y = y * (2 - (x * y));
+        return y;
+    }
+
+    export function fdiv(a: number, b: number, s?: boolean) {
+        if (!a || !b) return NaN;
+        if (b <= 0) return NaN;
+        return a * frcp(b, s);
+    }
+
+    export function imin(a: number, b: number) {
+        if (!a || !b) return NaN;
+        return b ^ ((a ^ b) & -(a < b));
+    }
+
+    export function imax(a: number, b: number) {
+        if (!a || !b) return NaN;
+        return a ^ ((a ^ b) & -(a < b));
+    }
+
+    export function numif(cond: boolean, yes: number, no: number) {
+        return (+(cond) * yes) + (+(!cond) * no)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -486,4 +525,4 @@ namespace Math {
 
 }
 
-game.splash(Math.q_cbrt(32))
+game.splash(MathUtil.fdiv(50, 2, true))
