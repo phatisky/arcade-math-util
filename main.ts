@@ -320,10 +320,10 @@ namespace Math {
     }
 
     /**
- * Calculate absolute with bit
- * @param x number
- * @returns bit abs value
- */
+     * Calculate absolute with bit
+     * @param x number
+     * @returns bit abs value
+     */
     //%blockid=math_gcd_bit
     //%block="bit abs of $x"
     //%group="number theory"
@@ -413,21 +413,20 @@ namespace Math {
      * @returns fast inverse square root number
      */
     //%blockid=math_sqrt_fast_inverse
-    //%block="1 / sqrt($x)|| with iteration $n"
+    //%block="1 / sqrt($x)"
     //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=5
-    export function q_rsqrt(x: number, n?: number): number {
+    export function q_rsqrt(x: number): number {
         if (x < 0 || isNaN(x)) return NaN;
-        if (!n || isNaN(n)) n = 1;
         const buf = pins.createBuffer(4);
         buf.setNumber(NumberFormat.Float32LE, 0, x);
         let i = buf.getNumber(NumberFormat.Int32LE, 0);
         i = 0x5f3759df - (i >> 1);
         buf.setNumber(NumberFormat.Int32LE, 0, i);
         let y = buf.getNumber(NumberFormat.Float32LE, 0);
-        // n iteration Newton-Raphson
-        while (n --> 0) y = y * (1.5 - ((0.5 * x) * (y * y)));
+        // iteration Newton-Raphson
+        y = y * (1.5 - ((0.5 * x) * (y * y)));
         return y;
     }
 
@@ -440,13 +439,29 @@ namespace Math {
      * @returns fast square root number
      */
     //%blockid=math_sqrt_fast
-    //%block="fast sqrt($x)|| with iteration $n"
+    //%block="fast sqrt($x)"
     //%n.defl=1 n.min=1 n.max=10
     //%group="math bit"
     //%weight=2
-    export function q_sqrt(x: number, n?: number) {
-        if (!n || isNaN(n)) n = 1;
-        return x <= 0 || isNaN(x) ? NaN : x * q_rsqrt(x, n)
+    export function q_sqrt(x: number) {
+        return x <= 0 || isNaN(x) ? NaN : x * q_rsqrt(x)
+    }
+
+    export function q_rcbrt(x: number): number {
+        if (x < 0 || isNaN(x)) return NaN;
+        const buf = pins.createBuffer(4);
+        buf.setNumber(NumberFormat.Float32LE, 0, x);
+        let i = buf.getNumber(NumberFormat.Int32LE, 0);
+        i = 0x54a21d2a - (i * 0.333333333);
+        buf.setNumber(NumberFormat.Int32LE, 0, i);
+        let y = buf.getNumber(NumberFormat.Float32LE, 0);
+        // iteration Newton-Raphson
+        y = y * (1.3333333 - ((0.33333333 * x) * (y * y * y)));
+        return y;
+    }
+
+    export function q_cbrt(x: number) {
+        return x * q_rcbrt(x)
     }
 
     const pal = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -471,3 +486,4 @@ namespace Math {
 
 }
 
+game.splash(Math.q_cbrt(32))
