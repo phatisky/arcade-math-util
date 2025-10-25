@@ -1,5 +1,5 @@
 {
-    "name": "arcade-math-util",
+    "name": "arcade-math-util - Copy",
     "version": "4.2.4",
     "description": "",
     "dependencies": {
@@ -15,7 +15,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "2.0.60",
+        "target": "2.0.61",
         "targetId": "arcade"
     },
     "supportedTargets": [

@@ -370,7 +370,7 @@ namespace MathUtil {
     //%group="number theory"
     //%weight=11
     export function blcm(a: number, b: number): number {
-        return +((a | b) > 0) * babs(a * b) * frcp(imax(bgcd(a, b), 1));
+        return +((a | b) > 0) * babs(a * b) * frcp(imax(bgcd(a, b), 1), true);
     }
 
     /**
@@ -409,6 +409,13 @@ namespace MathUtil {
         // If n is a prime number greater than 2
         if (n > 2) factors.push(n);
         return factors;
+    }
+
+    export function zigzet(l: number, r: number, n: number, c?: boolean) {
+        return +((l + n - 1) < r) * (
+            (+((n & 1) > 0) * (l + (n >> 1) + ((+(c) | 0) * 0.5))) +
+            (+((n & 1) < 1) * (l + ((r - l) - (n >> 1) - ((+(c) | 0) * 0.5))))
+        ) / +((l + n - 1) < r);
     }
 
     /**
@@ -525,4 +532,4 @@ namespace MathUtil {
 
 }
 
-game.splash(MathUtil.fdiv(50, 2, true))
+game.splash(MathUtil.fdiv(1, 10000, true))
